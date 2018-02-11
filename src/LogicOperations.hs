@@ -29,8 +29,7 @@ toOp :: String -> Op
 toOp symbol =
     fst
     $ fromJust
-    $ find (\(op, syms) -> symbol `elem` syms)
-    $ opsAndSymbol
+    $ find (\(op, syms) -> symbol `elem` syms) opsAndSymbol
 
 opsAndSymbol :: [(Op, [String])]
 opsAndSymbol = map (\op -> (op, opSymbols op)) allOps

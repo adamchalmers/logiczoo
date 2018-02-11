@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiWayIf #-}
 
 module LogicCli (Command, exec) where
 
@@ -17,7 +18,7 @@ data Command
     = LogicalTruth
         { sentence :: String }
     | Equivalent
-        { sentences :: [String] }
+        { sentence1 :: String, sentence2 :: String }
     | TruthTable
         { sentence :: String }
     deriving (Generic, Show)
@@ -27,13 +28,20 @@ instance ParseRecord Command
 exec :: Command -> String
 exec = \case
     TruthTable {sentence=s} ->
-        let
-            tt = fmap truthTable (parse s)
-        in case tt of
-            Left errMsg -> show errMsg
+        case fmap truthTable (parse s) of
+            Left err -> show err
             Right rows -> intercalate "\n" (map fmtRow rows)
-    _ ->
-        "Not yet implemented"
+    Equivalent {sentence1=a, sentence2=b} ->
+        if  | lefts [ta] /= [] -> show ta
+            | lefts [tb] /= [] -> show tb
+            | otherwise -> show $ equivalent (unpack ta) (unpack tb)
+        where
+            (ta, tb) = (parse a, parse b)
+            unpack x = (head $ rights [x])
+    LogicalTruth {sentence=s} ->
+        case fmap logicalTruth (parse s) of
+            Left err -> show err
+            Right result -> show result
 
 parse :: String -> Either ParseError (Expr Op)
 parse = fmap (fmap toOp) . parseExp "(evaluator)"

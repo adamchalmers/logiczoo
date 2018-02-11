@@ -15,7 +15,7 @@ truthTable tree = map eval models
 logicalTruth :: Expr Op -> Bool
 logicalTruth = (== []) . falseRows . truthTable
     where
-        falseRows = filter (\(model, val) -> val == False)
+        falseRows = filter (\(model, val) -> not val)
 
 equivalent :: Expr Op -> Expr Op -> Bool
-equivalent a b = (truthTable a) == (truthTable b)
+equivalent a b = truthTable a == truthTable b

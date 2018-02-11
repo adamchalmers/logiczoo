@@ -7,7 +7,7 @@ type Model = Map Atom Bool
 type Atom = String
 
 fmtModel :: Model -> String
-fmtModel = intercalate " " . map fmtPair . toList
+fmtModel = unwords . map fmtPair . toList
     where
         fmtPair (symbol, val) =
             if val
