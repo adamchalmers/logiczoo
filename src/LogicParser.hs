@@ -1,15 +1,27 @@
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE LambdaCase #-}
 
-module LogicParser ( Expr(Proposition, Node1, Node2), parseExp ) where
+module LogicParser ( Expr(Proposition, Node1, Node2), parseExp, propositionsIn ) where
 
+import Data.Set (fromList, toList)
+import LogicOperations
 import Text.ParserCombinators.Parsec
 import Test.Hspec
 
-data Expr s
+data Expr op
     = Proposition String
-    | Node1 s (Expr s)
-    | Node2 (Expr s) s (Expr s)
+    | Node1 op (Expr op)
+    | Node2 (Expr op) op (Expr op)
     deriving (Show, Eq, Functor)
+
+propositionsIn :: Expr op -> [String]
+propositionsIn = toList . fromList . \case
+    Proposition s ->
+        [s]
+    Node1 _ n ->
+        propositionsIn n
+    Node2 l _ r ->
+        propositionsIn l ++ propositionsIn r
 
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -28,7 +40,7 @@ twoPlace = between (char '(') (char ')') contents
         contents = Node2 <$> expression <*> sym <*> expression
 
 sym :: GenParser Char st String
-sym = choice $ map string ["v", "&", "~", "->", "<->", "x", "v", "|"]
+sym = choice $ map string $ concatMap opSymbols allOps
 
 parseExp :: String -> String -> Either ParseError (Expr String)
 parseExp src = parse expression src . filter (/= ' ')

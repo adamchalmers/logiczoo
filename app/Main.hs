@@ -3,6 +3,7 @@ module Main where
 import Data.Map
 import LogicEvaluator
 import LogicParser
+import LogicOperations
 
 
 parse = fmap (fmap toOp) . parseExp "(main)"

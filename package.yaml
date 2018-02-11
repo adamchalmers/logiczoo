@@ -21,10 +21,11 @@ description:         Please see the README on Github at <https://github.com/adam
 
 dependencies:
 - base >= 4.7 && < 5
-- parsec
-- hspec
 - containers
+- hspec
 - optparse-generic
+- parsec
+- vector
 
 library:
   source-dirs: src

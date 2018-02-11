@@ -1,38 +1,16 @@
 {-# LANGUAGE LambdaCase #-}
 
-module LogicEvaluator (toOp, evalTree) where
+module LogicEvaluator (evalTree) where
 
 import Debug.Trace
 import Data.Map
 import Data.Maybe
+import LogicModels
+import LogicOperations
 import LogicParser
 import Prelude hiding (lookup)
 
-type Assignment = Map String Bool
-type Atom = String
-
-data Op
-    = Not
-    | Or
-    | And
-    | Cnd
-    | Iff
-    | Xor
-    deriving (Show)
-
-toOp :: String -> Op
-toOp = \case -- warning: partial case
-    "&" -> And
-    "^" -> And
-    "v" -> Or
-    "|" -> Or
-    "~" -> Not
-    "!" -> Not
-    "->" -> Cnd
-    "<->" -> Iff
-    "x" -> Xor
-
-evalTree :: Map Atom Bool -> Expr Op -> Bool
+evalTree :: Model -> Expr Op -> Bool
 evalTree truths = \case -- warning: partial case
     Node1 Not n -> nev n
     Node2 l Or  r -> ev l || ev r
