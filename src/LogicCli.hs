@@ -47,4 +47,7 @@ parse :: String -> Either ParseError (Expr Op)
 parse = fmap (fmap toOp) . parseExp "(evaluator)"
 
 fmtRow :: (Model, Bool) -> String
-fmtRow (model, bool) = fmtModel model ++ " --- " ++ show bool
+fmtRow (model, bool) = fmtModel model ++ " --- " ++ fmtBool bool
+    where
+        fmtBool True = " True"
+        fmtBool False = "False"

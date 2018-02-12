@@ -11,7 +11,7 @@ fmtModel = unwords . map fmtPair . toList
     where
         fmtPair (symbol, val) =
             if val
-            then symbol
+            then ' ':symbol
             else '~':symbol
 
 allModels :: [String] -> [Model]
