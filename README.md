@@ -30,10 +30,10 @@ Spaces are ignored.
 To see the truth table for a sentence:
 ```console
 $ logiczoo-exe truthtable --sentence "~(A&B)"
-A B --- False
-A ~B --- True
-~A B --- True
-~A ~B --- True
+ A  B ---  True
+ A ~B --- False
+~A  B --- False
+~A ~B --- False
 ```
 
 To check if something is logically true (i.e. true on all models):
