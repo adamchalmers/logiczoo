@@ -1,10 +1,9 @@
-module LogicModels (Model, Atom, allModels, fmtModel) where
+module LogicModels (Model, allModels, fmtModel) where
 
 import Data.Map hiding (map)
 import Data.List (intercalate)
 
-type Model = Map Atom Bool
-type Atom = String
+type Model = Map String Bool
 
 fmtModel :: Model -> String
 fmtModel = unwords . map fmtPair . toList
@@ -25,4 +24,3 @@ allModels symbols = modelsFor symbols []
             [ insert s True model
             , insert s False model
             ]
-

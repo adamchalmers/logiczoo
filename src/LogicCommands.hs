@@ -10,7 +10,7 @@ truthTable :: Expr Op -> [(Model, Bool)]
 truthTable tree = map eval models
     where
         eval m = (m, evalTree m tree)
-        models = allModels $ propositionsIn tree
+        models = allModels $ atomsIn tree
 
 logicalTruth :: Expr Op -> Bool
 logicalTruth = (== []) . falseRows . truthTable

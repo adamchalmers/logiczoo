@@ -18,7 +18,7 @@ evalTree truths = \case -- warning: partial case
     Node2 l Cnd r -> nev l || ev r
     Node2 l Iff r -> (ev l && ev r)  || (nev l && nev r)
     Node2 l Xor r -> (ev l && nev r) || (nev l && ev r)
-    Proposition s -> fromJust $ lookup s truths
+    Atom s -> fromJust $ lookup s truths
     where
         ev = evalTree truths
         nev = not . evalTree truths

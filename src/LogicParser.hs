@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE LambdaCase #-}
 
-module LogicParser ( Expr(Proposition, Node1, Node2), parseExp, propositionsIn ) where
+module LogicParser ( Expr(Atom, Node1, Node2), parseExp, atomsIn ) where
 
 import Data.Set (fromList, toList)
 import LogicOperations
@@ -9,27 +9,27 @@ import Text.ParserCombinators.Parsec
 import Test.Hspec
 
 data Expr op
-    = Proposition String
+    = Atom String
     | Node1 op (Expr op)
     | Node2 (Expr op) op (Expr op)
     deriving (Show, Eq, Functor)
 
-propositionsIn :: Expr op -> [String]
-propositionsIn = toList . fromList . \case
-    Proposition s ->
+atomsIn :: Expr op -> [String]
+atomsIn = toList . fromList . \case
+    Atom s ->
         [s]
     Node1 _ n ->
-        propositionsIn n
+        atomsIn n
     Node2 l _ r ->
-        propositionsIn l ++ propositionsIn r
+        atomsIn l ++ atomsIn r
 
 alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 expression :: GenParser Char st (Expr String)
-expression = proposition <|> onePlace <|> twoPlace
+expression = atom <|> onePlace <|> twoPlace
 
-proposition :: GenParser Char st (Expr String)
-proposition = Proposition . (:[]) <$> oneOf alphabet
+atom :: GenParser Char st (Expr String)
+atom = Atom . (:[]) <$> oneOf alphabet
 
 onePlace :: GenParser Char st (Expr String)
 onePlace = Node1 <$> sym <*> expression
