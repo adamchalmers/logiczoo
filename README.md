@@ -23,7 +23,7 @@ The parser recognizes the following logic operators:
  - Iff: "<->"
  - Xor: "x"
 
-Spaces are ignored.
+Spaces are ignored. Two-place operators _must_ be wrapped in parentheses. For example, the parser will accept `(A&B)` but not `A&B`. 
 
 ## Examples:
 
