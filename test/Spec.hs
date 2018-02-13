@@ -19,6 +19,22 @@ main = hspec $ do
     describe "Truth Tables" $ do
         testTruthTable
 
+    describe "Formatting" $ do
+        testFormatting
+
+testFormatting = do
+
+    it "formats true correctly" $ do
+        let truths = fromList [("A", True)]
+        let s = fmtModel truths
+        ('A' `elem` s && (not ('~' `elem` s))) `shouldSatisfy` id
+
+    it "formats false correctly" $ do
+        let truths = fromList [("A", False)]
+        let s = fmtModel truths
+        ('A' `elem` s && ('~' `elem` s)) `shouldSatisfy` id
+
+
 testTruthTable = do
     let parse = fmap (fmap toOp) . parseExp "(evaluator)"
     let tree = parse "A"
@@ -87,6 +103,16 @@ testEvaluator = do
         eval "(AvB)" `shouldBe` Right True
     it "evals nested" $ do
         eval "((A|B)vB)" `shouldBe` Right True
+    it "evals de Morgan's laws" $ do
+        eval "(~(AvB) <-> (~A & ~B))" `shouldBe` Right True
+    it "evals modus ponens" $ do
+        eval "((A & (A -> B)) -> B)" `shouldBe` Right True
+    it "evals xor" $ do
+        eval "(AxB)" `shouldBe` Right True
+    it "evals not xor" $ do
+        eval "(AxA)" `shouldBe` Right False
+    it "evals not xor again" $ do
+        eval "(BxB)" `shouldBe` Right False
 
 testParser = do
     let p = Atom "P"
@@ -107,3 +133,6 @@ testParser = do
         test "(~P v Q)" `shouldBe` Right (Node2 (Node1 "~" p) "v" q)
     it "parses nested conjuncts" $ do
         test "((PvQ)&~P)" `shouldBe` Right (Node2 (Node2 p "v" q) "&" (Node1 "~" p))
+    it "parses de Morgan's law" $ do
+        test "(~(PvQ) <-> (~P & ~Q))" `shouldBe`
+            Right (Node2 (Node1 "~" (Node2 p "v" q)) "<->" (Node2 (Node1 "~" p) "&" (Node1 "~" q)))
