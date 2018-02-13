@@ -6,6 +6,7 @@ module LogicCli (Command, exec) where
 
 import Data.Either
 import Data.List (intercalate)
+import Data.Maybe (fromMaybe)
 import LogicEvaluator
 import LogicModels
 import LogicOperations
@@ -16,32 +17,45 @@ import Text.ParserCombinators.Parsec (ParseError)
 
 data Command
     = LogicalTruth
-        { sentence :: String }
+        { sentence :: String
+        , rules :: Maybe Rules
+        }
     | Equivalent
-        { sentence1 :: String, sentence2 :: String }
+        { sentences :: [String]
+        , rules :: Maybe Rules
+        }
     | TruthTable
-        { sentence :: String }
+        { sentence :: String
+        , rules :: Maybe Rules
+        }
     deriving (Generic, Show)
 
 instance ParseRecord Command
+instance ParseField Rules
+instance ParseFields Rules
+instance ParseRecord Rules
 
 exec :: Command -> String
-exec = \case
+exec cmd = case cmd of
     TruthTable {sentence=s} ->
-        case fmap truthTable (parse s) of
+        case fmap (truthTable r) (parse s) of
             Left err -> show err
             Right rows -> intercalate "\n" (map fmtRow rows)
-    Equivalent {sentence1=a, sentence2=b} ->
+    Equivalent {sentences=s} ->
         if  | lefts [ta] /= [] -> show ta
             | lefts [tb] /= [] -> show tb
-            | otherwise -> show $ equivalent (unpack ta) (unpack tb)
+            | otherwise -> show $ equivalent r (unpack ta) (unpack tb)
         where
+            a = s !! 0
+            b = s !! 1
             (ta, tb) = (parse a, parse b)
             unpack x = (head $ rights [x])
     LogicalTruth {sentence=s} ->
-        case fmap logicalTruth (parse s) of
+        case fmap (logicalTruth r) (parse s) of
             Left err -> show err
             Right result -> show result
+    where
+        r = fromMaybe Classical (rules cmd)
 
 parse :: String -> Either ParseError (Expr Op)
 parse = fmap (fmap toOp) . parseExp "(evaluator)"

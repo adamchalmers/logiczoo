@@ -24,29 +24,29 @@ testTruthTable = do
     let tree = parse "A"
 
     it "finds trivial propositions" $ do
-        fmap propositionsIn tree `shouldBe` Right ["A"]
+        fmap atomsIn tree `shouldBe` Right ["A"]
 
     it "finds models easy" $ do
-        fmap (allModels . propositionsIn) tree `shouldBe` Right
+        fmap (allModels . atomsIn) tree `shouldBe` Right
             [ fromList [("A", True)]
             , fromList [("A", False)]
             ]
 
     it "finds models medium" $ do
-        let models = fmap (allModels . propositionsIn) (parse "(A&A)")
+        let models = fmap (allModels . atomsIn) (parse "(A&A)")
         models `shouldBe` Right
             [ fromList [("A", True)]
             , fromList [("A", False)]
             ]
 
     it "does a trivial truth table" $ do
-        fmap truthTable tree `shouldBe` Right
+        fmap (truthTable Classical) tree `shouldBe` Right
             [ (fromList [("A", True)], True)
             , (fromList [("A", False)], False)
             ]
 
     it "does a real truth table" $ do
-        fmap truthTable (parse "(A&B)") `shouldBe` Right
+        fmap (truthTable Classical) (parse "(A&B)") `shouldBe` Right
             [ (fromList [("A", True), ("B", True)], True)
             , (fromList [("A", True), ("B", False)], False)
             , (fromList [("A", False), ("B", True)], False)
@@ -54,28 +54,28 @@ testTruthTable = do
             ]
 
     it "checks logical truths" $ do
-        fmap logicalTruth (parse "(Av~A)") `shouldBe` Right True
+        fmap (logicalTruth Classical) (parse "(Av~A)") `shouldBe` Right True
 
     it "checks bad logical truths" $ do
-        fmap logicalTruth (parse "(AvB)") `shouldBe` Right False
+        fmap (logicalTruth Classical) (parse "(AvB)") `shouldBe` Right False
 
     it "checks logical equivalence" $ do
         let trees = rights [parse "(A&A)", parse "A"]
-        equivalent (head trees) (trees !! 1) `shouldBe` True
+        equivalent Classical (head trees) (trees !! 1) `shouldBe` True
 
     it "checks logical equivalence (commution)" $ do
         let trees = rights [parse "(A&B)", parse "(B&A)"]
-        equivalent (head trees) (trees !! 1) `shouldBe` True
+        equivalent Classical (head trees) (trees !! 1) `shouldBe` True
 
     it "checks logical equivalence (de Morgan)" $ do
         let trees = rights [parse "(~A&~B)", parse "~(AvB)"]
-        equivalent (head trees) (trees !! 1) `shouldBe` True
+        equivalent Classical (head trees) (trees !! 1) `shouldBe` True
 
 
 testEvaluator = do
     let truths = fromList [("A", True), ("B", False)]
     let parse = fmap (fmap toOp) . parseExp "(evaluator)"
-    let eval = fmap (evalTree truths) . parse
+    let eval = fmap (evalTree Classical truths) . parse
 
     it "evals propositions" $ do
         eval "A" `shouldBe` Right True
@@ -89,14 +89,14 @@ testEvaluator = do
         eval "((A|B)vB)" `shouldBe` Right True
 
 testParser = do
-    let p = Proposition "P"
-    let q = Proposition "Q"
+    let p = Atom "P"
+    let q = Atom "Q"
     let test = parseExp "(test)"
 
     it "finds propositions" $ do
-        fmap propositionsIn (test "P") `shouldBe` Right ["P"]
+        fmap atomsIn (test "P") `shouldBe` Right ["P"]
     it "finds many propositions" $ do
-        fmap propositionsIn (test "(P&(QvR))") `shouldBe` Right ["P", "Q", "R"]
+        fmap atomsIn (test "(P&(QvR))") `shouldBe` Right ["P", "Q", "R"]
     it "parses propositions" $ do
         test "P" `shouldBe` Right p
     it "parses negation" $ do

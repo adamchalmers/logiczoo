@@ -1,17 +1,27 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
-module LogicEvaluator (evalTree) where
+module LogicEvaluator (evalTree, Rules(Classical)) where
 
 import Debug.Trace
 import Data.Map
 import Data.Maybe
+import Data.Typeable (Typeable)
 import LogicModels
 import LogicOperations
 import LogicParser
+import Options.Generic
 import Prelude hiding (lookup)
 
-evalTree :: Model -> Expr Op -> Bool
-evalTree truths = \case -- warning: partial case
+data Rules = Classical deriving (Generic, Show, Read, Typeable)
+
+evalTree :: Rules -> Model -> Expr Op -> Bool
+evalTree rules = case rules of
+    Classical -> evalClassical
+
+evalClassical :: Model -> Expr Op -> Bool
+evalClassical truths = \case -- warning: partial case
     Node1 Not n -> nev n
     Node2 l Or  r -> ev l || ev r
     Node2 l And r -> ev l && ev r
@@ -20,5 +30,5 @@ evalTree truths = \case -- warning: partial case
     Node2 l Xor r -> (ev l && nev r) || (nev l && ev r)
     Atom s -> fromJust $ lookup s truths
     where
-        ev = evalTree truths
-        nev = not . evalTree truths
+        ev = evalClassical truths
+        nev = not . evalClassical truths

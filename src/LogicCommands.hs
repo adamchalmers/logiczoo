@@ -6,16 +6,16 @@ import LogicOperations
 import LogicEvaluator
 import LogicParser
 
-truthTable :: Expr Op -> [(Model, Bool)]
-truthTable tree = map eval models
+truthTable :: Rules -> Expr Op -> [(Model, Bool)]
+truthTable rules tree = map eval models
     where
-        eval m = (m, evalTree m tree)
+        eval m = (m, evalTree rules m tree)
         models = allModels $ atomsIn tree
 
-logicalTruth :: Expr Op -> Bool
-logicalTruth = (== []) . falseRows . truthTable
+logicalTruth :: Rules -> Expr Op -> Bool
+logicalTruth rules = (== []) . falseRows . (truthTable rules)
     where
         falseRows = filter (\(model, val) -> not val)
 
-equivalent :: Expr Op -> Expr Op -> Bool
-equivalent a b = truthTable a == truthTable b
+equivalent :: Rules -> Expr Op -> Expr Op -> Bool
+equivalent rules a b = truthTable rules a == truthTable rules b
