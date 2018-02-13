@@ -1,6 +1,11 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 
 module LogicCli (Command, exec) where
 
@@ -15,27 +20,29 @@ import LogicCommands
 import Options.Generic
 import Text.ParserCombinators.Parsec (ParseError)
 
-data Command
+
+data Command w
     = LogicalTruth
-        { sentence :: String
-        , rules :: Maybe Rules
+        { sentence :: w ::: String <?> "A sentence of logic"
+        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
     | Equivalent
-        { sentences :: [String]
-        , rules :: Maybe Rules
+        { sentences :: w :::  [String] <?> "Sentences of logic"
+        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
     | TruthTable
-        { sentence :: String
-        , rules :: Maybe Rules
+        { sentence :: w :::  String <?> "A sentence of logic"
+        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
-    deriving (Generic, Show)
+    deriving (Generic)
 
-instance ParseRecord Command
+instance ParseRecord (Command Wrapped)
+deriving instance Show (Command Unwrapped)
 instance ParseField Rules
 instance ParseFields Rules
-instance ParseRecord Rules
+instance ParseRecord (Rules)
 
-exec :: Command -> String
+exec :: Command Unwrapped -> String
 exec cmd = case cmd of
     TruthTable {sentence=s} ->
         case fmap (truthTable r) (parse s) of

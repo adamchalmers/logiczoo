@@ -6,5 +6,5 @@ import LogicCli
 import Options.Generic
 
 main = do
-    cmd <- getRecord "Logic Zoo"
-    putStrLn $ exec (cmd :: Command)
+    (opts, help) <- unwrapWithHelp "Logic Zoo"
+    putStrLn $ exec (opts :: Command Unwrapped)
