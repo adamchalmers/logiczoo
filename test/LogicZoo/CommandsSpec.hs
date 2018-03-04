@@ -9,12 +9,41 @@ import LogicZoo.Operations
 import LogicZoo.Parser
 import Test.Hspec
 
+parse = fmap (fmap toOp) . parseExp "(commands)"
+
 spec = do
     describe "truth tables" $ do
         testTruthTable
+    describe "logical equivalence" $ do
+        testLogicalEquivalence
+
+testLogicalEquivalence = do
+
+    it "finds trivial equivalence" $ do
+        let [a] = rights [parse "A"]
+        equivalent Classical a a `shouldBe` True
+
+    it "finds trivial non-equivalence" $ do
+        let [a, b] = rights [ parse "A", parse "B"]
+        equivalent Classical a b `shouldBe` False
+
+    it "finds deMorgan equivalence" $ do
+        let [p, q] = rights [ parse "~(AvB)", parse "(~A&~B)"]
+        equivalent Classical p q `shouldBe` True
+
+    it "finds nonequivalence" $ do
+        let [p, q] = rights [ parse "~(AvB)", parse "(~A&B)"]
+        equivalent Classical p q `shouldBe` False
+
+    it "finds equivalence between logical truths with different variables" $ do
+        let [p, q] = rights [ parse "(Pv~P)", parse "(Qv~Q)"]
+        equivalent Classical p q `shouldBe` True
+
+    it "finds equivalence between formulae with different variables" $ do
+        let [p, q] = rights [ parse "P", parse "(Pv(Q&~Q))"]
+        equivalent Classical p q `shouldBe` True
 
 testTruthTable = do
-    let parse = fmap (fmap toOp) . parseExp "(truth tables)"
     let tree = parse "A"
 
     it "finds trivial propositions" $ do
