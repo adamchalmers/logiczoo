@@ -1,7 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -40,7 +39,7 @@ instance ParseRecord (Command Wrapped)
 deriving instance Show (Command Unwrapped)
 instance ParseField Rules
 instance ParseFields Rules
-instance ParseRecord (Rules)
+instance ParseRecord Rules
 
 exec :: Command Unwrapped -> String
 exec cmd = case cmd of

@@ -21,7 +21,7 @@ truthTableExtraAtoms atoms rules tree = L.map eval (allModels allAtoms)
         allAtoms = S.toList . S.fromList $ atomsIn tree ++ atoms
 
 logicalTruth :: Rules -> Expr Op -> Bool
-logicalTruth rules = (== []) . falseRows . (truthTable rules)
+logicalTruth rules = (== []) . falseRows . truthTable rules
     where
         falseRows = L.filter (\(model, val) -> not val)
 
