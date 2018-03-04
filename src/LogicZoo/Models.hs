@@ -1,4 +1,4 @@
-module LogicModels (Model, allModels, fmtModel) where
+module LogicZoo.Models (Model, allModels, fmtModel) where
 
 import Data.Map hiding (map)
 import Data.List (intercalate)

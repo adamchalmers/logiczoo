@@ -1,10 +1,10 @@
 import Data.Either
 import Data.Map
-import LogicCommands
-import LogicEvaluator
-import LogicModels
-import LogicOperations
-import LogicParser
+import LogicZoo.Commands
+import LogicZoo.Evaluator
+import LogicZoo.Models
+import LogicZoo.Operations
+import LogicZoo.Parser
 import Test.Hspec
 
 main = hspec $ do

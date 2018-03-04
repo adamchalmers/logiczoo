@@ -2,15 +2,15 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module LogicEvaluator (evalTree, Rules(Classical)) where
+module LogicZoo.Evaluator (evalTree, Rules(Classical)) where
 
 import Debug.Trace
 import Data.Map
 import Data.Maybe
 import Data.Typeable (Typeable)
-import LogicModels
-import LogicOperations
-import LogicParser
+import LogicZoo.Models
+import LogicZoo.Operations
+import LogicZoo.Parser
 import Options.Generic
 import Prelude hiding (lookup)
 

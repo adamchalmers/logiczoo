@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE LambdaCase #-}
 
-module LogicParser ( Expr(Atom, Node1, Node2), parseExp, atomsIn ) where
+module LogicZoo.Parser ( Expr(Atom, Node1, Node2), parseExp, atomsIn ) where
 
 import Data.Set (fromList, toList)
-import LogicOperations
+import LogicZoo.Operations
 import Text.ParserCombinators.Parsec
 import Test.Hspec
 

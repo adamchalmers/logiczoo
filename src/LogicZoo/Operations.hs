@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module LogicOperations (Op(Not, Or, And, Cnd, Iff, Xor), allOps, opSymbols, toOp) where
+module LogicZoo.Operations (Op(Not, Or, And, Cnd, Iff, Xor), allOps, opSymbols, toOp) where
 
 import Data.List
 import Data.Maybe

@@ -2,7 +2,7 @@
 
 module Main where
 
-import LogicCli
+import LogicZoo.Cli
 import Options.Generic
 
 main = do

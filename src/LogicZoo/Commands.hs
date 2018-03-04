@@ -1,10 +1,10 @@
-module LogicCommands (truthTable, logicalTruth, equivalent) where
+module LogicZoo.Commands (truthTable, logicalTruth, equivalent) where
 
 import Data.Map hiding (map, filter)
-import LogicModels
-import LogicOperations
-import LogicEvaluator
-import LogicParser
+import LogicZoo.Models
+import LogicZoo.Operations
+import LogicZoo.Evaluator
+import LogicZoo.Parser
 
 truthTable :: Rules -> Expr Op -> [(Model, Bool)]
 truthTable rules tree = map eval models

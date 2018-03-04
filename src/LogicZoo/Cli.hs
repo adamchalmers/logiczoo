@@ -7,16 +7,16 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators #-}
 
-module LogicCli (Command, exec) where
+module LogicZoo.Cli (Command, exec) where
 
 import Data.Either
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
-import LogicEvaluator
-import LogicModels
-import LogicOperations
-import LogicParser
-import LogicCommands
+import LogicZoo.Evaluator
+import LogicZoo.Models
+import LogicZoo.Operations
+import LogicZoo.Parser
+import LogicZoo.Commands
 import Options.Generic
 import Text.ParserCombinators.Parsec (ParseError)
 
