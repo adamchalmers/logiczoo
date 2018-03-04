@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -23,15 +24,12 @@ import Text.ParserCombinators.Parsec (ParseError)
 data Command w
     = LogicalTruth
         { sentence :: w ::: String <?> "A sentence of logic"
-        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
     | Equivalent
         { sentences :: w :::  [String] <?> "Sentences of logic"
-        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
     | TruthTable
         { sentence :: w :::  String <?> "A sentence of logic"
-        , rules :: w :::  Maybe Rules <?> "Which rules of logic to apply. Defaults to Classical."
         }
     deriving (Generic)
 
@@ -42,23 +40,21 @@ instance ParseFields Rules
 instance ParseRecord Rules
 
 exec :: Command Unwrapped -> String
-exec cmd = case cmd of
+exec = \case
     TruthTable {sentence=s} ->
-        case fmap (truthTable r) (parse s) of
+        case fmap (truthTable Classical) (parse s) of
             Left err -> show err
             Right rows -> L.intercalate "\n" (map fmtRow rows)
     Equivalent {sentences=s} ->
         if | not (L.null $ lefts ts) -> "formatting error: " ++ (show . head . lefts) ts
            | L.length s < 2        -> "you must supply at least 2 sentences"
-           | otherwise             -> show $ equivalent r (rights ts)
+           | otherwise             -> show $ equivalent Classical (rights ts)
         where
             ts = map parse s
     LogicalTruth {sentence=s} ->
-        case fmap (logicalTruth r) (parse s) of
+        case fmap (logicalTruth Classical) (parse s) of
             Left err -> show err
             Right result -> show result
-    where
-        r = fromMaybe Classical (rules cmd)
 
 parse :: String -> Either ParseError (Expr Op)
 parse = fmap (fmap toOp) . parseExp "(evaluator)"
