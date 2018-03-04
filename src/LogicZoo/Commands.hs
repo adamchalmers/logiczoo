@@ -21,12 +21,16 @@ truthTableExtraAtoms atoms rules tree = L.map eval (allModels allAtoms)
         allAtoms = S.toList . S.fromList $ atomsIn tree ++ atoms
 
 logicalTruth :: Rules -> Expr Op -> Bool
-logicalTruth rules = (== []) . falseRows . truthTable rules
+logicalTruth rules = L.null . falseRows . truthTable rules
     where
         falseRows = L.filter (\(model, val) -> not val)
 
-equivalent :: Rules -> Expr Op -> Expr Op -> Bool
-equivalent rules a b =
-    (==)
-        (truthTableExtraAtoms (atomsIn b) rules a)
-        (truthTableExtraAtoms (atomsIn a) rules b)
+equivalent :: Rules -> [Expr Op] -> Bool
+equivalent rules trees = allEqual . L.map toTruthTable $ trees
+    where
+        allAtoms = L.concatMap atomsIn trees
+        toTruthTable = truthTableExtraAtoms allAtoms rules
+
+allEqual :: (Eq a) => [a] -> Bool
+allEqual [] = True
+allEqual (x:xs) = all (== x) xs

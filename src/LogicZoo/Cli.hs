@@ -9,7 +9,7 @@
 module LogicZoo.Cli (Command, exec) where
 
 import Data.Either
-import Data.List (intercalate)
+import Data.List as L
 import Data.Maybe (fromMaybe)
 import LogicZoo.Evaluator
 import LogicZoo.Models
@@ -46,16 +46,13 @@ exec cmd = case cmd of
     TruthTable {sentence=s} ->
         case fmap (truthTable r) (parse s) of
             Left err -> show err
-            Right rows -> intercalate "\n" (map fmtRow rows)
+            Right rows -> L.intercalate "\n" (map fmtRow rows)
     Equivalent {sentences=s} ->
-        if  | lefts [ta] /= [] -> show ta
-            | lefts [tb] /= [] -> show tb
-            | otherwise -> show $ equivalent r (unpack ta) (unpack tb)
+        if | not (L.null $ lefts ts) -> "formatting error: " ++ (show . head . lefts) ts
+           | L.length s < 2        -> "you must supply at least 2 sentences"
+           | otherwise             -> show $ equivalent r (rights ts)
         where
-            a = s !! 0
-            b = s !! 1
-            (ta, tb) = (parse a, parse b)
-            unpack x = (head $ rights [x])
+            ts = map parse s
     LogicalTruth {sentence=s} ->
         case fmap (logicalTruth r) (parse s) of
             Left err -> show err
