@@ -59,38 +59,41 @@ instance ToJSON Response where
         object [ "err" .= x ]
 
 getTruthTableR :: String -> Handler RepJson
-getTruthTableR sentence = case table of
-    Left err -> sendStatusJSON status400
-        (Err { err = show err})
-    Right rows -> sendStatusJSON status200
-        (Table
-            { table = L.map (first Format.fmtModelList) rows
-            , sentence = sentence
-            })
+getTruthTableR sentence =
+    case table of
+        Left err -> sendStatusJSON status400
+            Err { err = show err}
+        Right rows -> sendStatusJSON status200
+            Table
+                { table = L.map (first Format.fmtModelList) rows
+                , sentence = sentence
+                }
     where
         table = fmap (truthTable Classical) (parse sentence)
 
 getLogicalTruthR :: String -> Handler RepJson
-getLogicalTruthR sentence = case result of
-    Left err -> sendStatusJSON status400
-        (Err { err = show err})
-    Right bool -> sendStatusJSON status200
-        (LTruth
-            { lTruth = bool
-            , sentence = sentence
-            })
+getLogicalTruthR sentence =
+    case result of
+        Left err -> sendStatusJSON status400
+            Err { err = show err}
+        Right bool -> sendStatusJSON status200
+            LTruth
+                { lTruth = bool
+                , sentence = sentence
+                }
     where
         result = fmap (logicalTruth Classical) (parse sentence)
 
 getEquivalentR :: String -> String -> Handler RepJson
-getEquivalentR s1 s2 = if lefts trees == []
-    then sendStatusJSON status200
-        (Equivalent
-            { equiv = equivalent Classical (rights trees)
-            , sentences = [s1, s2]
-            })
-    else sendStatusJSON status400
-        (Err { err = show $ head $ lefts trees})
+getEquivalentR s1 s2 =
+    if L.null (lefts trees)
+        then sendStatusJSON status200
+            Equivalent
+                { equiv = equivalent Classical (rights trees)
+                , sentences = [s1, s2]
+                }
+        else sendStatusJSON status400
+            Err { err = show $ head $ lefts trees}
     where
         trees = L.map parse [s1, s2]
 
