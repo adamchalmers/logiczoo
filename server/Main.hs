@@ -23,13 +23,14 @@ data App = App
 instance Yesod App
 
 mkYesod "App" [parseRoutes|
-/ HomeR GET
+/                                   HomeR         GET
 /api/truthTable/#String             TruthTableR   GET
 /api/lTruth/#String                 LogicalTruthR GET
 /api/equivalent/#String/#String     EquivalentR   GET
 |]
 
-getHomeR = defaultLayout [whamlet|<h1>LogicZoo|]
+getHomeR :: Handler ()
+getHomeR = sendFile "text/html" "html/index.html"
 
 data Response
     = Table
