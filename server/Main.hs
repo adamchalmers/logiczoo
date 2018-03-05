@@ -5,6 +5,7 @@
 {-# LANGUAGE ViewPatterns      #-}
 
 import Control.Arrow
+import Data.Either
 import Data.List as L
 import Data.Map as M
 import LogicZoo.Evaluator
@@ -23,8 +24,9 @@ instance Yesod App
 
 mkYesod "App" [parseRoutes|
 / HomeR GET
-/api/truthTable/#String TruthTableR   GET
-/api/lTruth/#String     LogicalTruthR GET
+/api/truthTable/#String             TruthTableR   GET
+/api/lTruth/#String                 LogicalTruthR GET
+/api/equivalent/#String/#String     EquivalentR   GET
 |]
 
 getHomeR = defaultLayout [whamlet|<h1>LogicZoo|]
@@ -38,14 +40,23 @@ data Response
         { sentence :: String
         , lTruth :: Bool
         }
+    | Equivalent
+        { sentences :: [String]
+        , equiv :: Bool
+        }
     | Err
         { err :: String }
     deriving (Show, Eq)
 
 instance ToJSON Response where
-    toJSON (Table s t)  = object [ "sentence" .= s, "table" .= t ]
-    toJSON (Err x)    = object [ "err" .= x ]
-    toJSON (LTruth s lt) = object [ "sentence" .= s, "lTruth" .= lt ]
+    toJSON (Table s t) =
+        object [ "sentence" .= s, "table" .= t ]
+    toJSON (LTruth s b) =
+        object [ "sentence" .= s, "lTruth" .= b ]
+    toJSON (Equivalent s b) =
+        object [ "sentences" .= s, "equiv" .= b ]
+    toJSON (Err x) =
+        object [ "err" .= x ]
 
 getTruthTableR :: String -> Handler RepJson
 getTruthTableR sentence = case table of
@@ -70,6 +81,18 @@ getLogicalTruthR sentence = case result of
             })
     where
         result = fmap (logicalTruth Classical) (parse sentence)
+
+getEquivalentR :: String -> String -> Handler RepJson
+getEquivalentR s1 s2 = if lefts trees == []
+    then sendStatusJSON status200
+        (Equivalent
+            { equiv = equivalent Classical (rights trees)
+            , sentences = [s1, s2]
+            })
+    else sendStatusJSON status400
+        (Err { err = show $ head $ lefts trees})
+    where
+        trees = L.map parse [s1, s2]
 
 main :: IO ()
 main = warp 3000 App
