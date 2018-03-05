@@ -13,6 +13,7 @@ import Data.Either
 import Data.List as L
 import Data.Maybe (fromMaybe)
 import LogicZoo.Evaluator
+import LogicZoo.Format
 import LogicZoo.Models
 import LogicZoo.Operations
 import LogicZoo.Parser

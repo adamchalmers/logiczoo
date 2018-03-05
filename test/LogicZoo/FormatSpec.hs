@@ -1,7 +1,7 @@
 module LogicZoo.FormatSpec (spec) where
 
 import Data.Map
-import LogicZoo.Models
+import LogicZoo.Format
 import Test.Hspec
 
 spec = do

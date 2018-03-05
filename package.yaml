@@ -52,6 +52,7 @@ executables:
     - logiczoo
     - yesod
     - aeson
+    - http-types
 
 tests:
   logiczoo-test:

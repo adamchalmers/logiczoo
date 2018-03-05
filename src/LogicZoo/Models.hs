@@ -1,17 +1,9 @@
-module LogicZoo.Models (Model, allModels, fmtModel) where
+module LogicZoo.Models (Model, allModels) where
 
 import Data.Map hiding (map)
 import Data.List (intercalate)
 
 type Model = Map String Bool
-
-fmtModel :: Model -> String
-fmtModel = unwords . map fmtPair . toList
-    where
-        fmtPair (symbol, val) =
-            if val
-            then ' ':symbol
-            else '~':symbol
 
 allModels :: [String] -> [Model]
 allModels symbols = modelsFor symbols []

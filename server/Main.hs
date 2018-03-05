@@ -1,23 +1,53 @@
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE QuasiQuotes           #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE ViewPatterns      #-}
 
+import Control.Arrow
+import Data.List as L
+import Data.Map as M
+import LogicZoo.Evaluator
+import qualified LogicZoo.Format as Format
+import LogicZoo.Models
+import LogicZoo.Operations
+import LogicZoo.Parser
 import LogicZoo.Commands
+import Network.HTTP.Types.Status (status400, status200)
+import Text.ParserCombinators.Parsec (ParseError)
 import Yesod
 
-data LZW = LZW
 
-mkYesod "LZW" [parseRoutes|
+data App = App
+instance Yesod App
+
+mkYesod "App" [parseRoutes|
 / HomeR GET
-/page1 Page1R GET
-/page2 Page2R GET
+/api/truthTable/#String TruthTableR GET
 |]
 
-instance Yesod LZW
+getHomeR = defaultLayout [whamlet|<h1>LogicZoo|]
 
-getHomeR  = defaultLayout [whamlet|<a href=@{Page1R}>Go to page 1!|]
-getPage1R = defaultLayout [whamlet|<a href=@{Page2R}>Go to page 2!|]
-getPage2R = defaultLayout [whamlet|<a href=@{HomeR}>Go home!|]
+data Response
+    = Table   { table :: [([String], Bool)] }
+    | Err    { err  :: String }
+    deriving (Show, Eq)
 
-main = warp 3000 LZW
+instance ToJSON Response where
+    toJSON (Table x) = object [ "table" .= x ]
+    toJSON (Err x) = object [ "err" .= x ]
+
+getTruthTableR :: String -> Handler RepJson
+getTruthTableR sentence = case table of
+    Left err -> sendStatusJSON status400
+        (Err { err = show err})
+    Right rows -> sendStatusJSON status200
+        (Table { table = L.map (first Format.fmtModelList) rows})
+    where
+        table = fmap (truthTable Classical) (parse sentence)
+
+main :: IO ()
+main = warp 3000 App
+
+parse :: String -> Either ParseError (Expr Op)
+parse = fmap (fmap toOp) . parseExp "(evaluator)"
