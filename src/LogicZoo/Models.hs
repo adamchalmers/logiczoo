@@ -9,12 +9,16 @@ type Model = Map String Bool
 -- Given some variables, generate all possible models for them.
 allModels :: [String] -> [Model]
 allModels symbols = modelsFor symbols []
+
+-- Helper function for `allModels`
+modelsFor :: [String] -> [Model] -> [Model]
+modelsFor variables partial =
+    case (variables, partial) of
+        ([], partial)   -> partial
+        (v:vs, [])      -> modelsFor vs $ extend v empty
+        (v:vs, partial) -> modelsFor vs $ concatMap (extend v) partial
     where
-        modelsFor [] partial = partial
-        modelsFor (s:ss) partials = modelsFor ss $ case partials of
-            [] -> extend s empty
-            ps -> concatMap (extend s) ps
         extend s model =
-            [ insert s True model
+            [ insert s True  model
             , insert s False model
             ]
